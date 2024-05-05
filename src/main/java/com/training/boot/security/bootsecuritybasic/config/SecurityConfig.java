@@ -11,12 +11,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Collections;
+
 @Configuration
 public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.httpBasic(Customizer.withDefaults());
-        http.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
+        http.authorizeHttpRequests(
+                authorize -> authorize
+                                .requestMatchers("private").authenticated()
+                                .anyRequest().permitAll())
+                            .logout().logoutUrl("/logout").logoutSuccessUrl("/").and()
+                            .formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/").failureUrl("/login?error");
         return http.build();
     }
     @Bean
@@ -25,9 +31,8 @@ public class SecurityConfig {
     }
     @Bean
     UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager userDetailsService = new InMemoryUserDetailsManager();
-        UserDetails user = User.withUsername("javainuse").password(passwordEncoder().encode("javainuse")).authorities("read").build();
-        userDetailsService.createUser(user);
-        return userDetailsService;
+      return new InMemoryUserDetailsManager(
+              new User("user", "{noop}password", Collections.emptyList())
+      );
     }
 }
