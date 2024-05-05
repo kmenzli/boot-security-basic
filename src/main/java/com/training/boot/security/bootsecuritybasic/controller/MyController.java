@@ -11,4 +11,9 @@ public class MyController {
         return "Hello JavaInUse";
     }
 
+    @GetMapping("/private")
+    public String privateAsc() {
+        return "Hello Preivate";
+    }
+
 }
