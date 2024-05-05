@@ -17,12 +17,13 @@ import java.util.Collections;
 public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(
-                authorize -> authorize
-                                .requestMatchers("private").authenticated()
-                                .anyRequest().permitAll())
-                            .logout().logoutUrl("/logout").logoutSuccessUrl("/").and()
-                            .formLogin().loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/").failureUrl("/login?error");
+        http
+                .authorizeHttpRequests(
+                        authorize -> authorize.requestMatchers("private").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .formLogin(Customizer.withDefaults())
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
     @Bean
@@ -32,7 +33,7 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService() {
       return new InMemoryUserDetailsManager(
-              new User("user", "{noop}password", Collections.emptyList())
+              new User("user", passwordEncoder().encode("password"), Collections.emptyList())
       );
     }
 }
